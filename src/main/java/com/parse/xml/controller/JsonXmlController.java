@@ -1,5 +1,6 @@
 package com.parse.xml.controller;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -46,14 +47,23 @@ public class JsonXmlController {
 
         String jsonString = new String(file.getBytes(), StandardCharsets.UTF_8);
         JSONArray result = jsonXmlService.parseJsonAndXml(jsonString);
-        String resultString = result.toString(2);
+
+        // JSONArray를 List<Map>으로 변환
+        List<Map<String, Object>> resultList = new ObjectMapper()
+                .readValue(result.toString(), new TypeReference<List<Map<String, Object>>>() {});
+
+        // ObjectMapper 설정 및 변환
+        ObjectMapper mapper = new ObjectMapper()
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);  // 여기가 수정된 부분
+
+        String resultString = mapper.writeValueAsString(resultList);
         byte[] resultBytes = resultString.getBytes(StandardCharsets.UTF_8);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setContentDispositionFormData("attachment", "literature_result.json"); // 다운로드 파일 이름 설정
+        headers.setContentDispositionFormData("attachment", "literature_result.json");
         headers.setContentLength(resultBytes.length);
-
 
         return new ResponseEntity<>(resultBytes, headers, HttpStatus.OK);
     }

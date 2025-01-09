@@ -85,7 +85,7 @@ public class JsonXmlService {
 
                 String isCorrectPath = "//List[@IsCorrectAll='True']/ListItem[@OriginalSequence='" + j + "' and @IsCorrectAnswer='True']";
                 if (xpath.evaluate(isCorrectPath, doc, XPathConstants.NODE) != null) {
-                    resultMap.put("answer", j + " 번");
+                    resultMap.put("answer", j + "번");
                 }
             }
         }
